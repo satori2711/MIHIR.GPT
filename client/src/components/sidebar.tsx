@@ -54,7 +54,7 @@ export function Sidebar({
 
   // Sidebar class calculation
   const sidebarClass = `
-    w-full md:w-80 bg-white border-r border-neutral-medium flex flex-col z-20 
+    w-full md:w-80 bg-card border-r border-border flex flex-col z-20 
     transition-all duration-300 ease-in-out overflow-hidden
     ${isMobile ? (isOpen ? 'h-screen absolute top-0 left-0' : 'h-20') : 'h-full'}
   `;
@@ -62,15 +62,15 @@ export function Sidebar({
   return (
     <div className={sidebarClass}>
       {/* App Header */}
-      <div className="flex justify-between items-center p-4 border-b border-neutral-medium">
-        <h1 className="text-xl font-semibold text-neutral-darkest flex items-center">
+      <div className="flex justify-between items-center p-4 border-b border-border">
+        <h1 className="text-xl font-semibold text-foreground flex items-center">
           <History className="mr-2 text-primary h-5 w-5" />
           Persona Chat
         </h1>
         {isMobile && (
           <button 
             onClick={onToggle} 
-            className="md:hidden text-neutral-dark hover:text-primary focus:outline-none"
+            className="md:hidden text-muted-foreground hover:text-primary focus:outline-none"
           >
             <span className="material-icons">
               {isOpen ? 'expand_less' : 'expand_more'}
@@ -80,15 +80,15 @@ export function Sidebar({
       </div>
 
       {/* Persona Search */}
-      <div className="p-4 border-b border-neutral-medium">
+      <div className="p-4 border-b border-border">
         <div className="relative">
-          <span className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none text-neutral-dark">
+          <span className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none text-muted-foreground">
             <span className="material-icons text-sm">search</span>
           </span>
           <input 
             type="text" 
             placeholder="Search personas..." 
-            className="w-full pl-10 pr-4 py-2 border border-neutral-medium rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+            className="w-full pl-10 pr-4 py-2 border border-input bg-background text-foreground rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
           />
@@ -96,8 +96,8 @@ export function Sidebar({
       </div>
 
       {/* Persona Categories */}
-      <div className="p-4 border-b border-neutral-medium">
-        <h2 className="font-medium text-sm uppercase tracking-wider text-neutral-dark mb-2">
+      <div className="p-4 border-b border-border">
+        <h2 className="font-medium text-sm uppercase tracking-wider text-muted-foreground mb-2">
           Categories
         </h2>
         <div className="flex flex-wrap gap-2">
@@ -106,8 +106,8 @@ export function Sidebar({
               key={category}
               className={`px-3 py-1 text-xs ${
                 selectedCategory === category
-                  ? 'bg-primary text-white'
-                  : 'bg-neutral-light text-neutral-darkest hover:bg-neutral-medium'
+                  ? 'bg-primary text-primary-foreground'
+                  : 'bg-muted text-foreground hover:bg-muted/80'
               } rounded-full focus:outline-none focus:ring-2 focus:ring-primary`}
               onClick={() => setSelectedCategory(category as CategoryType)}
             >
@@ -120,22 +120,22 @@ export function Sidebar({
       {/* Persona List */}
       <div className="overflow-y-auto flex-grow">
         {isLoading ? (
-          <div className="p-4 text-center text-neutral-dark">Loading personas...</div>
+          <div className="p-4 text-center text-muted-foreground">Loading personas...</div>
         ) : filteredPersonas.length === 0 ? (
-          <div className="p-4 text-center text-neutral-dark">No personas found</div>
+          <div className="p-4 text-center text-muted-foreground">No personas found</div>
         ) : (
-          <div className="divide-y divide-neutral-medium">
+          <div className="divide-y divide-border">
             {filteredPersonas.map((persona: Persona) => (
               <div
                 key={persona.id}
-                className={`p-3 flex items-center hover:bg-neutral-light cursor-pointer ${
+                className={`p-3 flex items-center hover:bg-muted cursor-pointer ${
                   activePersonaId === persona.id
-                    ? 'bg-primary-light/10 border-l-4 border-primary'
+                    ? 'bg-primary/10 border-l-4 border-primary'
                     : ''
                 }`}
                 onClick={() => onPersonaSelect(persona)}
               >
-                <div className={`flex-shrink-0 w-12 h-12 rounded-full bg-neutral-medium overflow-hidden ${
+                <div className={`flex-shrink-0 w-12 h-12 rounded-full bg-muted overflow-hidden ${
                   activePersonaId === persona.id ? 'border-2 border-primary' : ''
                 }`}>
                   <img
@@ -145,8 +145,8 @@ export function Sidebar({
                   />
                 </div>
                 <div className="ml-3 flex-grow">
-                  <h3 className="font-medium">{persona.name}</h3>
-                  <p className="text-xs text-neutral-dark">{persona.lifespan} • {persona.category}</p>
+                  <h3 className="font-medium text-foreground">{persona.name}</h3>
+                  <p className="text-xs text-muted-foreground">{persona.lifespan} • {persona.category}</p>
                 </div>
                 {activePersonaId === persona.id && (
                   <span className="material-icons text-primary">check_circle</span>

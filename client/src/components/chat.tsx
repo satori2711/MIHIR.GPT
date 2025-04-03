@@ -236,21 +236,21 @@ export function Chat({ activePersona, onPersonaSelect, onToggleSidebar, isMobile
   }, [activePersona, sessionId, messages, isLoadingMessages, queryClient]);
 
   return (
-    <div className="flex-grow flex flex-col bg-neutral-lightest">
+    <div className="flex-grow flex flex-col bg-background">
       {/* Chat Header */}
-      <div className="border-b border-neutral-medium bg-white p-4 flex items-center justify-between">
+      <div className="border-b border-border bg-card p-4 flex items-center justify-between">
         <div className="flex items-center">
           {isMobile && (
             <button 
               onClick={onToggleSidebar}
-              className="md:hidden mr-4 text-neutral-dark focus:outline-none"
+              className="md:hidden mr-4 text-muted-foreground focus:outline-none"
             >
               <Menu className="h-5 w-5" />
             </button>
           )}
           {activePersona ? (
             <div className="flex items-center">
-              <div className="w-10 h-10 rounded-full bg-neutral-medium overflow-hidden mr-3 border border-primary">
+              <div className="w-10 h-10 rounded-full bg-muted overflow-hidden mr-3 border border-primary">
                 <img 
                   src={activePersona.imageUrl} 
                   alt={activePersona.name} 
@@ -258,39 +258,39 @@ export function Chat({ activePersona, onPersonaSelect, onToggleSidebar, isMobile
                 />
               </div>
               <div>
-                <h2 className="font-medium text-neutral-darkest">{activePersona.name}</h2>
-                <p className="text-xs text-neutral-dark">{activePersona.description}</p>
+                <h2 className="font-medium text-foreground">{activePersona.name}</h2>
+                <p className="text-xs text-muted-foreground">{activePersona.description}</p>
               </div>
             </div>
           ) : (
             <div className="flex items-center">
-              <div className="w-10 h-10 rounded-full bg-neutral-medium overflow-hidden mr-3 flex items-center justify-center bg-primary-light">
+              <div className="w-10 h-10 rounded-full overflow-hidden mr-3 flex items-center justify-center bg-primary">
                 <span className="material-icons text-white">history_edu</span>
               </div>
               <div>
-                <h2 className="font-medium text-neutral-darkest">Select a Persona</h2>
-                <p className="text-xs text-neutral-dark">Choose a historical figure to chat with</p>
+                <h2 className="font-medium text-foreground">Select a Persona</h2>
+                <p className="text-xs text-muted-foreground">Choose a historical figure to chat with</p>
               </div>
             </div>
           )}
         </div>
         <div className="flex">
           <button 
-            className="text-neutral-dark hover:text-primary p-2 focus:outline-none" 
+            className="text-muted-foreground hover:text-primary p-2 focus:outline-none" 
             title="Change personality"
             onClick={onReset}
           >
             <RefreshCw className="h-5 w-5" />
           </button>
           <button 
-            className="text-neutral-dark hover:text-primary p-2 focus:outline-none" 
+            className="text-muted-foreground hover:text-primary p-2 focus:outline-none" 
             title="Chat settings"
             disabled={!activePersona}
           >
             <Settings className="h-5 w-5" />
           </button>
           <button 
-            className="text-neutral-dark hover:text-error p-2 focus:outline-none" 
+            className="text-muted-foreground hover:text-destructive p-2 focus:outline-none" 
             title="Clear chat"
             onClick={handleClearChat}
             disabled={!activePersona || !messages || !Array.isArray(messages) || messages.length === 0}
@@ -304,19 +304,19 @@ export function Chat({ activePersona, onPersonaSelect, onToggleSidebar, isMobile
       <div className="flex-grow overflow-y-auto p-4 space-y-4" id="chatMessages">
         {isLoadingMessages ? (
           <div className="flex justify-center">
-            <div className="bg-neutral-light rounded-lg px-4 py-2 text-sm text-neutral-darkest max-w-md text-center">
+            <div className="bg-muted rounded-lg px-4 py-2 text-sm text-foreground max-w-md text-center">
               Loading messages...
             </div>
           </div>
         ) : !activePersona ? (
           <div className="flex justify-center mb-6">
-            <div className="bg-neutral-light rounded-lg px-4 py-2 text-sm text-neutral-darkest max-w-md text-center">
+            <div className="bg-muted rounded-lg px-4 py-2 text-sm text-foreground max-w-md text-center">
               Select a historical figure from the sidebar to start chatting
             </div>
           </div>
         ) : messages && Array.isArray(messages) && messages.length === 0 ? (
           <div className="flex justify-center mb-6">
-            <div className="bg-neutral-light rounded-lg px-4 py-2 text-sm text-neutral-darkest max-w-md text-center">
+            <div className="bg-muted rounded-lg px-4 py-2 text-sm text-foreground max-w-md text-center">
               You are now chatting with <span className="font-semibold">{activePersona.name}</span>. Ask anything or try switching personas.
             </div>
           </div>
@@ -331,7 +331,7 @@ export function Chat({ activePersona, onPersonaSelect, onToggleSidebar, isMobile
           ))
         ) : (
           <div className="flex justify-center">
-            <div className="bg-neutral-light rounded-lg px-4 py-2 text-sm text-neutral-darkest max-w-md text-center">
+            <div className="bg-muted rounded-lg px-4 py-2 text-sm text-foreground max-w-md text-center">
               Loading conversation...
             </div>
           </div>
@@ -340,7 +340,7 @@ export function Chat({ activePersona, onPersonaSelect, onToggleSidebar, isMobile
         {/* Show typing indicator when AI is generating a response */}
         {isTyping && (
           <div className="flex items-start space-x-2 max-w-3xl">
-            <div className="w-8 h-8 rounded-full bg-neutral-medium overflow-hidden flex-shrink-0">
+            <div className="w-8 h-8 rounded-full bg-muted overflow-hidden flex-shrink-0">
               {activePersona && (
                 <img 
                   src={activePersona.imageUrl} 
@@ -349,7 +349,7 @@ export function Chat({ activePersona, onPersonaSelect, onToggleSidebar, isMobile
                 />
               )}
             </div>
-            <div className="bg-white rounded-2xl rounded-tl-none px-4 py-3 shadow-sm">
+            <div className="bg-card rounded-2xl rounded-tl-none px-4 py-3 shadow-sm">
               <div className="flex items-center space-x-1">
                 <div className="w-1 h-1 bg-primary rounded-full animate-bounce"></div>
                 <div className="w-1 h-1 bg-primary rounded-full animate-bounce" style={{ animationDelay: '0.2s' }}></div>
@@ -364,13 +364,13 @@ export function Chat({ activePersona, onPersonaSelect, onToggleSidebar, isMobile
       </div>
 
       {/* Message Input */}
-      <div className="border-t border-neutral-medium bg-white p-4">
+      <div className="border-t border-border bg-card p-4">
         <form onSubmit={handleSendMessage} className="flex items-end space-x-2">
           <div className="flex-grow relative">
             <textarea 
               ref={inputRef}
               placeholder={activePersona ? "Type your message..." : "Select a persona to start chatting"}
-              className="w-full border border-neutral-medium rounded-lg pl-3 pr-10 py-3 resize-none focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent min-h-[50px] max-h-[150px]"
+              className="w-full border border-input rounded-lg pl-3 pr-10 py-3 resize-none bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent min-h-[50px] max-h-[150px]"
               rows={1}
               value={messageInput}
               onChange={(e) => setMessageInput(e.target.value)}
@@ -381,7 +381,7 @@ export function Chat({ activePersona, onPersonaSelect, onToggleSidebar, isMobile
             <div className="absolute right-2 bottom-2 flex space-x-1">
               <button 
                 type="button"
-                className="text-neutral-dark hover:text-primary p-1 focus:outline-none" 
+                className="text-muted-foreground hover:text-primary p-1 focus:outline-none" 
                 title="Switch persona"
                 onClick={() => setIsModalOpen(true)}
                 disabled={!activePersona || isTyping}
@@ -394,8 +394,8 @@ export function Chat({ activePersona, onPersonaSelect, onToggleSidebar, isMobile
             type="submit"
             className={`rounded-full p-3 flex-shrink-0 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 transition-colors duration-200 ${
               !messageInput.trim() || !activePersona || isTyping
-                ? 'bg-neutral-medium text-white cursor-not-allowed'
-                : 'bg-primary hover:bg-primary-dark text-white'
+                ? 'bg-muted text-muted-foreground cursor-not-allowed'
+                : 'bg-primary hover:bg-primary/90 text-primary-foreground'
             }`}
             disabled={!messageInput.trim() || !activePersona || isTyping}
           >
@@ -403,7 +403,7 @@ export function Chat({ activePersona, onPersonaSelect, onToggleSidebar, isMobile
           </button>
         </form>
         <div className="flex justify-between mt-2">
-          <div className="text-xs text-neutral-dark">
+          <div className="text-xs text-muted-foreground">
             {isTyping && (
               <span className="flex items-center">
                 <span className="inline-block w-1 h-1 bg-primary rounded-full animate-bounce mr-1"></span>
@@ -413,7 +413,7 @@ export function Chat({ activePersona, onPersonaSelect, onToggleSidebar, isMobile
               </span>
             )}
           </div>
-          <div className="text-xs text-neutral-dark">
+          <div className="text-xs text-muted-foreground">
             Press Enter to send, Shift+Enter for new line
           </div>
         </div>

@@ -14,7 +14,7 @@ export function Message({ message, personaImageUrl, personaName }: MessageProps)
   if (isSystem) {
     return (
       <div className="flex justify-center mb-6">
-        <div className="bg-neutral-light rounded-lg px-4 py-2 text-sm text-neutral-darkest max-w-md text-center">
+        <div className="bg-muted rounded-lg px-4 py-2 text-sm text-foreground max-w-md text-center">
           {message.content}
         </div>
       </div>
@@ -27,7 +27,7 @@ export function Message({ message, personaImageUrl, personaName }: MessageProps)
     const parts = content.split(/(".*?")/g);
     
     if (parts.length <= 1) {
-      return <p className="text-neutral-darkest">{content}</p>;
+      return <p className="text-foreground">{content}</p>;
     }
     
     return (
@@ -38,7 +38,7 @@ export function Message({ message, personaImageUrl, personaName }: MessageProps)
             return (
               <blockquote 
                 key={index} 
-                className="pl-3 mt-2 border-l-4 border-primary italic text-neutral-darkest font-serif"
+                className="pl-3 mt-2 border-l-4 border-primary italic text-foreground font-serif"
               >
                 {part}
               </blockquote>
@@ -47,7 +47,7 @@ export function Message({ message, personaImageUrl, personaName }: MessageProps)
           // Regular text (if not empty)
           else if (part.trim()) {
             return (
-              <p key={index} className="text-neutral-darkest mt-2">
+              <p key={index} className="text-foreground mt-2">
                 {part}
               </p>
             );
@@ -65,11 +65,11 @@ export function Message({ message, personaImageUrl, personaName }: MessageProps)
   if (isUser) {
     return (
       <div className="flex items-start justify-end space-x-2 max-w-3xl ml-auto">
-        <div className="bg-primary text-white rounded-2xl rounded-tr-none px-4 py-3 shadow-sm">
+        <div className="bg-primary text-primary-foreground rounded-2xl rounded-tr-none px-4 py-3 shadow-sm">
           <p>{message.content}</p>
         </div>
-        <div className="w-8 h-8 rounded-full bg-primary-light flex-shrink-0 flex items-center justify-center">
-          <span className="material-icons text-white text-sm">person</span>
+        <div className="w-8 h-8 rounded-full bg-primary/80 flex-shrink-0 flex items-center justify-center">
+          <span className="material-icons text-primary-foreground text-sm">person</span>
         </div>
       </div>
     );
@@ -78,7 +78,7 @@ export function Message({ message, personaImageUrl, personaName }: MessageProps)
   // Assistant message
   return (
     <div className="flex items-start space-x-2 max-w-3xl">
-      <div className="w-8 h-8 rounded-full bg-neutral-medium overflow-hidden flex-shrink-0">
+      <div className="w-8 h-8 rounded-full bg-muted overflow-hidden flex-shrink-0">
         {personaImageUrl ? (
           <img 
             src={personaImageUrl} 
@@ -86,12 +86,12 @@ export function Message({ message, personaImageUrl, personaName }: MessageProps)
             className="w-full h-full object-cover" 
           />
         ) : (
-          <div className="w-full h-full bg-primary-light flex items-center justify-center">
-            <span className="material-icons text-white text-sm">history_edu</span>
+          <div className="w-full h-full bg-primary flex items-center justify-center">
+            <span className="material-icons text-primary-foreground text-sm">history_edu</span>
           </div>
         )}
       </div>
-      <div className="bg-white rounded-2xl rounded-tl-none px-4 py-3 shadow-sm">
+      <div className="bg-card rounded-2xl rounded-tl-none px-4 py-3 shadow-sm">
         {paragraphs.length > 0 ? (
           paragraphs.map((paragraph, index) => (
             <div key={index} className={index > 0 ? "mt-2" : ""}>
@@ -99,7 +99,7 @@ export function Message({ message, personaImageUrl, personaName }: MessageProps)
             </div>
           ))
         ) : (
-          <p className="text-neutral-darkest">{message.content}</p>
+          <p className="text-foreground">{message.content}</p>
         )}
       </div>
     </div>
