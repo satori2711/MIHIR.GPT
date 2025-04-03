@@ -1,0 +1,62 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 0 0% 98%;
+    --foreground: 220 14% 30%;
+    
+    --card: 0 0% 100%;
+    --card-foreground: 220 14% 30%;
+    
+    --popover: 0 0% 100%;
+    --popover-foreground: 220 14% 30%;
+    
+    --primary: 238 86% 65%;
+    --primary-foreground: 0 0% 98%;
+    
+    --secondary: 246 86% 59%;
+    --secondary-foreground: 0 0% 98%;
+    
+    --muted: 220 14% 96%;
+    --muted-foreground: 220 8% 60%;
+    
+    --accent: 270 95% 65%;
+    --accent-foreground: 0 0% 98%;
+    
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 98%;
+    
+    --border: 220 13% 90%;
+    --input: 220 13% 90%;
+    --ring: 238 86% 65%;
+    
+    --radius: 0.5rem;
+  }
+
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply font-sans antialiased bg-background text-foreground;
+  }
+}
+
+@layer components {
+  .material-icons {
+    font-family: 'Material Icons';
+    font-weight: normal;
+    font-style: normal;
+    font-size: 24px;
+    line-height: 1;
+    letter-spacing: normal;
+    text-transform: none;
+    display: inline-block;
+    white-space: nowrap;
+    word-wrap: normal;
+    direction: ltr;
+    -webkit-font-smoothing: antialiased;
+  }
+}
