@@ -17,6 +17,7 @@ export interface Persona {
   description: string;
   imageUrl: string;
   context: string;
+  isCustom?: boolean;
 }
 
 // Chat session types

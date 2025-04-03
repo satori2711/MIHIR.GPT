@@ -100,9 +100,21 @@ export function Chat({ activePersona, onPersonaSelect, onToggleSidebar, isMobile
 
   // Change persona mutation
   const changePersonaMutation = useMutation({
-    mutationFn: async (personaId: number) => {
-      const res = await apiRequest('PATCH', `/api/sessions/${sessionId}/persona`, { personaId });
-      return res.json();
+    mutationFn: async (personaIdOrObject: number | Persona) => {
+      // Check if we're dealing with a custom persona or just an ID
+      if (typeof personaIdOrObject === 'object') {
+        // It's a custom persona object
+        const res = await apiRequest('PATCH', `/api/sessions/${sessionId}/persona`, { 
+          customPersona: personaIdOrObject 
+        });
+        return res.json();
+      } else {
+        // It's just a persona ID
+        const res = await apiRequest('PATCH', `/api/sessions/${sessionId}/persona`, { 
+          personaId: personaIdOrObject 
+        });
+        return res.json();
+      }
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: [`/api/sessions/${sessionId}/messages`] });
@@ -191,7 +203,12 @@ export function Chat({ activePersona, onPersonaSelect, onToggleSidebar, isMobile
     
     try {
       onPersonaSelect(persona);
-      await changePersonaMutation.mutateAsync(persona.id);
+      // If it's a custom persona, pass the entire object, otherwise just pass the ID
+      if (persona.isCustom) {
+        await changePersonaMutation.mutateAsync(persona);
+      } else {
+        await changePersonaMutation.mutateAsync(persona.id);
+      }
     } catch (error) {
       console.error('Error switching persona:', error);
     }

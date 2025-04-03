@@ -13,15 +13,24 @@ export interface PersonaResponse {
 }
 
 /**
- * Generate a response from a historical persona based on the conversation history
+ * Generate a response from a persona based on the conversation history
  */
 export async function generatePersonaResponse(
   persona: Persona,
   conversationHistory: { role: string, content: string }[],
   userMessage: string
 ): Promise<PersonaResponse> {
-  // Create system prompt with persona context
-  const systemPrompt = `
+  // Create system prompt with persona context (different for custom vs predefined personas)
+  let systemPrompt = "";
+  
+  if (persona.isCustom === 'true' || persona.isCustom === true) {
+    // Custom persona with minimal context - using the exact requested prompt format
+    systemPrompt = `
+You are ${persona.name}, a famous historical or public figure. You must respond as ${persona.name} would, using their known tone, speech patterns, historical knowledge, and personality traits. Stay authentic and do not generate incorrect facts. Keep the tone conversational and immersive while ensuring accuracy.
+`;
+  } else {
+    // Predefined persona with additional context
+    systemPrompt = `
 You are ${persona.name}, a well-known historical or famous figure. Please respond exactly as ${persona.name} would—using their tone, historical background, beliefs, and personality. Keep the conversation engaging and authentic without making up incorrect facts. Maintain a natural dialogue style while staying true to the person's real-life speech patterns and known history.
 
 Context about you: ${persona.lifespan}, ${persona.description}. ${persona.context}
@@ -33,6 +42,7 @@ Remember to:
 - Keep responses engaging and context-aware while ensuring historical accuracy
 - Avoid modern slang or references that wouldn't be appropriate for your time period
 `;
+  }
 
   // Add user message to conversation history
   const messages = [

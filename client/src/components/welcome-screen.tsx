@@ -2,6 +2,7 @@ import { useState, useRef, useEffect } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { Persona } from '@/lib/types';
 import { useToast } from '@/hooks/use-toast';
+import { nanoid } from 'nanoid';
 
 interface WelcomeScreenProps {
   onPersonaSelect: (persona: Persona) => void;
@@ -12,76 +13,65 @@ export function WelcomeScreen({ onPersonaSelect }: WelcomeScreenProps) {
   const [suggestions, setSuggestions] = useState<Persona[]>([]);
   const searchInputRef = useRef<HTMLInputElement>(null);
   const { toast } = useToast();
+  const nextPersonaIdRef = useRef(1000); // Start custom personas at a high ID to avoid conflicts
 
-  // Fetch personas for searching
+  // We still fetch personas for reference, but won't be limited to them
   const { data: personas = [] } = useQuery<Persona[]>({
     queryKey: ['/api/personas'],
   });
 
-  // Filter personas based on search input
+  // Generate a higher ID for new custom personas
   useEffect(() => {
-    if (!searchQuery.trim()) {
-      setSuggestions([]);
-      return;
-    }
-
     if (personas && personas.length > 0) {
-      const filtered = personas.filter((persona: Persona) => 
-        persona.name.toLowerCase().includes(searchQuery.toLowerCase())
-      );
-      setSuggestions(filtered);
-      
-      // Auto-select if there's an exact match or if there's only one suggestion and Enter was pressed
-      if (filtered.length === 1 && searchQuery.trim().length > 2 && searchQuery.endsWith('\n')) {
-        // Create a local copy to avoid direct state modifications in useEffect
-        const matchedPersona = filtered[0];
-        const cleanedQuery = searchQuery.replace('\n', '');
-        // Use setTimeout to break the synchronous update cycle
-        setTimeout(() => {
-          setSearchQuery(cleanedQuery);
-          handlePersonaSelect(matchedPersona);
-        }, 0);
-      }
+      const maxId = Math.max(...personas.map(p => p.id), 0);
+      nextPersonaIdRef.current = Math.max(maxId + 1000, nextPersonaIdRef.current); // Set a safe starting point
     }
-  }, [searchQuery, personas, onPersonaSelect]);
+  }, [personas]);
 
-  // Check for exact name match when user presses Enter
+  // Check for input when user presses Enter and create custom persona if needed
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === 'Enter') {
-      // Prevent form submission
       e.preventDefault();
+      const name = searchQuery.trim();
       
-      if (suggestions.length === 0 && searchQuery.trim()) {
-        // No exact matches, show a toast with suggestions
-        toast({
-          title: "No exact matches found",
-          description: "Please select from the suggestions or try a different name.",
-          variant: "default"
-        });
-        return;
-      }
+      if (!name) return;
       
-      if (suggestions.length === 1) {
-        // If only one suggestion, select it
-        handlePersonaSelect(suggestions[0]);
-        return;
-      }
-      
-      // Check for exact match by name
-      const exactMatch = suggestions.find(
-        persona => persona.name.toLowerCase() === searchQuery.trim().toLowerCase()
+      // Check for exact match in existing personas
+      const exactMatch = personas.find(
+        persona => persona.name.toLowerCase() === name.toLowerCase()
       );
       
       if (exactMatch) {
+        // If exact match exists, use that persona
         handlePersonaSelect(exactMatch);
-      } else if (suggestions.length > 0) {
-        // If no exact match but we have suggestions, select the first one
-        handlePersonaSelect(suggestions[0]);
+      } else {
+        // Otherwise create a custom persona with the entered name
+        createCustomPersona(name);
       }
     }
   };
 
-  // Handle persona selection from search
+  // Create a custom persona with the given name
+  const createCustomPersona = (name: string) => {
+    const customPersona: Persona = {
+      id: nextPersonaIdRef.current++,
+      name: name,
+      lifespan: "", // No lifespan for custom personas
+      category: "Custom",
+      description: `Custom personality: ${name}`,
+      imageUrl: `https://ui-avatars.com/api/?name=${encodeURIComponent(name)}&background=random`,
+      context: "", // No predefined context for custom personas
+      isCustom: true
+    };
+    
+    handlePersonaSelect(customPersona);
+    toast({
+      title: "Custom Personality Created",
+      description: `You are now chatting with ${name}.`,
+    });
+  };
+
+  // Handle persona selection
   const handlePersonaSelect = (persona: Persona) => {
     setSearchQuery('');
     setSuggestions([]);
@@ -102,7 +92,7 @@ export function WelcomeScreen({ onPersonaSelect }: WelcomeScreenProps) {
           MihirGPT
         </h1>
         <p className="text-xl text-center mb-6 text-foreground">
-          Whom would you like to chat with today?
+          Type any name to chat with that personality
         </p>
         
         <div className="relative">
@@ -112,7 +102,7 @@ export function WelcomeScreen({ onPersonaSelect }: WelcomeScreenProps) {
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             onKeyDown={handleKeyDown}
-            placeholder="Type any historical figure's name..."
+            placeholder="Enter any name (e.g., Einstein, Shakespeare, Cleopatra)..."
             className="w-full p-4 border border-input rounded-lg bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
           />
           

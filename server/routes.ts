@@ -130,18 +130,30 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.patch("/api/sessions/:sessionId/persona", async (req: Request, res: Response) => {
     try {
       const { sessionId } = req.params;
-      const { personaId } = req.body;
+      const { personaId, customPersona } = req.body;
       
-      if (!personaId || isNaN(parseInt(personaId.toString()))) {
-        return res.status(400).json({ message: "Invalid persona ID" });
-      }
+      let persona;
+      let parsedPersonaId;
       
-      const parsedPersonaId = parseInt(personaId.toString());
-      
-      // Check if persona exists
-      const persona = await storage.getPersonaById(parsedPersonaId);
-      if (!persona) {
-        return res.status(404).json({ message: "Persona not found" });
+      // Handle either custom persona or existing persona
+      if (customPersona) {
+        // Store the custom persona in the storage
+        // For in-memory implementation, we'll directly create it
+        persona = customPersona;
+        parsedPersonaId = customPersona.id;
+      } else {
+        // Handle predefined persona
+        if (!personaId || isNaN(parseInt(personaId.toString()))) {
+          return res.status(400).json({ message: "Invalid persona ID" });
+        }
+        
+        parsedPersonaId = parseInt(personaId.toString());
+        
+        // Check if persona exists
+        persona = await storage.getPersonaById(parsedPersonaId);
+        if (!persona) {
+          return res.status(404).json({ message: "Persona not found" });
+        }
       }
       
       // Check if session exists
