@@ -11,6 +11,7 @@ export interface IStorage {
   getPersonaById(id: number): Promise<Persona | undefined>;
   getPersonasByCategory(category: string): Promise<Persona[]>;
   searchPersonas(query: string): Promise<Persona[]>;
+  createCustomPersona(persona: Persona): Promise<Persona>;
   
   // Message methods
   getMessagesBySessionId(sessionId: string): Promise<Message[]>;
@@ -67,6 +68,34 @@ export class MemStorage implements IStorage {
         persona.category.toLowerCase().includes(lowerQuery)
     );
   }
+  
+  async createCustomPersona(persona: Persona): Promise<Persona> {
+    // Ensure the persona has required fields
+    if (!persona.name) {
+      throw new Error("Persona name is required");
+    }
+    
+    // Use the provided ID if it exists, otherwise generate a new one
+    const id = persona.id || this.personaCurrentId++;
+    
+    // Create a complete persona object with string value for isCustom
+    const newPersona: Persona = {
+      ...persona,
+      id,
+      isCustom: "true", // Store as string since that's how we define it in the DB
+      // Set defaults for any missing fields
+      lifespan: persona.lifespan || "",
+      category: persona.category || "Custom",
+      description: persona.description || `Custom personality: ${persona.name}`,
+      context: persona.context || "",
+      imageUrl: persona.imageUrl || `https://ui-avatars.com/api/?name=${encodeURIComponent(persona.name)}&background=random`
+    };
+    
+    // Store in our map
+    this.personas.set(id, newPersona);
+    
+    return newPersona;
+  }
 
   // Message methods
   async getMessagesBySessionId(sessionId: string): Promise<Message[]> {
@@ -77,11 +106,17 @@ export class MemStorage implements IStorage {
 
   async createMessage(insertMessage: InsertMessage): Promise<Message> {
     const id = this.messageCurrentId++;
+    
+    // Properly handle personaId - ensure it's null and not undefined
+    const personaId = insertMessage.personaId !== undefined ? insertMessage.personaId : null;
+    
     const message: Message = { 
       ...insertMessage, 
       id, 
+      personaId,
       timestamp: new Date() 
     };
+    
     this.messages.set(id, message);
     return message;
   }
@@ -93,11 +128,17 @@ export class MemStorage implements IStorage {
 
   async createChatSession(insertSession: InsertChatSession): Promise<ChatSession> {
     const id = this.chatSessionCurrentId++;
+    
+    // Properly handle currentPersonaId - ensure it's null and not undefined
+    const currentPersonaId = insertSession.currentPersonaId !== undefined ? insertSession.currentPersonaId : null;
+    
     const session: ChatSession = { 
       ...insertSession, 
-      id, 
+      id,
+      currentPersonaId,
       createdAt: new Date() 
     };
+    
     this.chatSessions.set(session.sessionId, session);
     return session;
   }
@@ -126,7 +167,8 @@ export class MemStorage implements IStorage {
         category: "Leaders",
         description: "South African anti-apartheid revolutionary, political leader, and philanthropist",
         imageUrl: "https://images.unsplash.com/photo-1601163584558-c7f1e67f4590?w=150&h=150&fit=crop&crop=faces",
-        context: "First black president of South Africa, human rights advocate and Nobel Peace Prize winner. Known for his role in ending apartheid and promoting reconciliation."
+        context: "First black president of South Africa, human rights advocate and Nobel Peace Prize winner. Known for his role in ending apartheid and promoting reconciliation.",
+        isCustom: "false"
       },
       {
         name: "Albert Einstein",
@@ -285,7 +327,16 @@ export class MemStorage implements IStorage {
     // Insert personas into storage
     historicalPersonas.forEach(persona => {
       const id = this.personaCurrentId++;
-      this.personas.set(id, { ...persona, id });
+      
+      // Ensure isCustom is set to "false" for historical personas
+      const completePersona = {
+        ...persona,
+        id,
+        // Set isCustom to false if not already defined
+        isCustom: persona.isCustom || "false"
+      };
+      
+      this.personas.set(id, completePersona);
     });
   }
 }

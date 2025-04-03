@@ -29,7 +29,7 @@ export function WelcomeScreen({ onPersonaSelect }: WelcomeScreenProps) {
   }, [personas]);
 
   // Check for input when user presses Enter and create custom persona if needed
-  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+  const handleKeyDown = async (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === 'Enter') {
       e.preventDefault();
       const name = searchQuery.trim();
@@ -46,29 +46,42 @@ export function WelcomeScreen({ onPersonaSelect }: WelcomeScreenProps) {
         handlePersonaSelect(exactMatch);
       } else {
         // Otherwise create a custom persona with the entered name
-        createCustomPersona(name);
+        await createCustomPersona(name);
       }
     }
   };
 
   // Create a custom persona with the given name
-  const createCustomPersona = (name: string) => {
-    const customPersona: Persona = {
-      id: nextPersonaIdRef.current++,
-      name: name,
-      lifespan: "", // No lifespan for custom personas
-      category: "Custom",
-      description: `Custom personality: ${name}`,
-      imageUrl: `https://ui-avatars.com/api/?name=${encodeURIComponent(name)}&background=random`,
-      context: "", // No predefined context for custom personas
-      isCustom: true
-    };
-    
-    handlePersonaSelect(customPersona);
-    toast({
-      title: "Custom Personality Created",
-      description: `You are now chatting with ${name}.`,
-    });
+  const createCustomPersona = async (name: string) => {
+    try {
+      // Use the API to create the custom persona
+      const response = await fetch('/api/personas/custom', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ name }),
+      });
+      
+      if (!response.ok) {
+        throw new Error('Failed to create custom persona');
+      }
+      
+      const customPersona = await response.json();
+      
+      handlePersonaSelect(customPersona);
+      toast({
+        title: "Custom Personality Created",
+        description: `You are now chatting with ${customPersona.name}.`,
+      });
+    } catch (error) {
+      console.error('Error creating custom persona:', error);
+      toast({
+        title: "Error",
+        description: "Failed to create custom persona. Please try again.",
+        variant: "destructive"
+      });
+    }
   };
 
   // Handle persona selection

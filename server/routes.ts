@@ -66,6 +66,46 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.status(500).json({ message: "Failed to fetch persona" });
     }
   });
+  
+  // Create a custom persona
+  app.post("/api/personas/custom", async (req: Request, res: Response) => {
+    try {
+      const { name } = req.body;
+      
+      if (!name || typeof name !== 'string' || name.trim() === '') {
+        return res.status(400).json({ message: "Valid name is required" });
+      }
+      
+      // Check if persona with this name already exists
+      const existingPersonas = await storage.searchPersonas(name);
+      const exactMatch = existingPersonas.find(
+        p => p.name.toLowerCase() === name.toLowerCase()
+      );
+      
+      if (exactMatch) {
+        // If persona already exists, return it
+        return res.json(exactMatch);
+      }
+      
+      // Create a new custom persona
+      const customPersona = {
+        id: 0, // Will be assigned by storage.createCustomPersona
+        name: name.trim(),
+        lifespan: "",
+        category: "Custom",
+        description: `Custom personality: ${name}`,
+        imageUrl: `https://ui-avatars.com/api/?name=${encodeURIComponent(name)}&background=random`,
+        context: "",
+        isCustom: "true"
+      };
+      
+      const newPersona = await storage.createCustomPersona(customPersona);
+      res.status(201).json(newPersona);
+    } catch (error) {
+      console.error("Error creating custom persona:", error);
+      res.status(500).json({ message: "Failed to create custom persona" });
+    }
+  });
 
   // Create or get a chat session
   app.post("/api/sessions", async (req: Request, res: Response) => {

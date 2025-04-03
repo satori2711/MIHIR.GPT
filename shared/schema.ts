@@ -26,7 +26,7 @@ export const personas = pgTable("personas", {
   description: text("description").notNull(),
   imageUrl: text("image_url").notNull(),
   context: text("context").notNull(),
-  isCustom: text("is_custom"), // Flag to mark user-created personas
+  isCustom: text("is_custom").default("false"), // Flag to mark user-created personas - stored as string "true"/"false"
 });
 
 export const insertPersonaSchema = createInsertSchema(personas).pick({

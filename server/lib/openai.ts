@@ -23,7 +23,7 @@ export async function generatePersonaResponse(
   // Create system prompt with persona context (different for custom vs predefined personas)
   let systemPrompt = "";
   
-  if (persona.isCustom === 'true' || persona.isCustom === true) {
+  if (persona.isCustom === "true") {
     // Custom persona with minimal context - using the exact requested prompt format
     systemPrompt = `
 You are ${persona.name}, a famous historical or public figure. You must respond as ${persona.name} would, using their known tone, speech patterns, historical knowledge, and personality traits. Stay authentic and do not generate incorrect facts. Keep the tone conversational and immersive while ensuring accuracy.

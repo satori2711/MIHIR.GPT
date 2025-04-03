@@ -204,7 +204,7 @@ export function Chat({ activePersona, onPersonaSelect, onToggleSidebar, isMobile
     try {
       onPersonaSelect(persona);
       // If it's a custom persona, pass the entire object, otherwise just pass the ID
-      if (persona.isCustom) {
+      if (persona.isCustom === "true") {
         await changePersonaMutation.mutateAsync(persona);
       } else {
         await changePersonaMutation.mutateAsync(persona.id);
