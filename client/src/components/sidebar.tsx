@@ -65,7 +65,7 @@ export function Sidebar({
       <div className="flex justify-between items-center p-4 border-b border-border">
         <h1 className="text-xl font-semibold text-foreground flex items-center">
           <History className="mr-2 text-primary h-5 w-5" />
-          Persona Chat
+          MihirGPT
         </h1>
         {isMobile && (
           <button 

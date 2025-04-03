@@ -23,13 +23,13 @@ export function PersonaModal({
   const [selectedPersonaId, setSelectedPersonaId] = useState<number | undefined>(currentPersonaId);
 
   // Get all personas from API
-  const { data: personas = [], isLoading } = useQuery({
+  const { data: personas = [], isLoading } = useQuery<Persona[]>({
     queryKey: ['/api/personas'],
     staleTime: 60000 // 1 minute
   });
 
   // Filter personas based on search
-  const filteredPersonas = personas.filter((persona: Persona) => 
+  const filteredPersonas = personas.filter((persona) => 
     searchQuery === '' || 
     persona.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
     persona.description.toLowerCase().includes(searchQuery.toLowerCase())
@@ -41,7 +41,7 @@ export function PersonaModal({
 
   const handleSwitchPersona = () => {
     if (selectedPersonaId) {
-      const persona = personas.find((p: Persona) => p.id === selectedPersonaId);
+      const persona = personas.find((p) => p.id === selectedPersonaId);
       if (persona) {
         onPersonaSelect(persona);
         onClose();
@@ -53,7 +53,7 @@ export function PersonaModal({
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
-          <DialogTitle className="font-medium text-lg">Switch Persona</DialogTitle>
+          <DialogTitle className="font-medium text-lg">Switch Historical Figure</DialogTitle>
           <button 
             onClick={onClose}
             className="absolute right-4 top-4 text-neutral-dark hover:text-primary focus:outline-none"
@@ -65,7 +65,7 @@ export function PersonaModal({
         <div className="mb-4">
           <Input
             type="text"
-            placeholder="Search personas..."
+            placeholder="Search historical figures..."
             className="w-full px-4 py-2 border border-neutral-medium rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
@@ -75,9 +75,9 @@ export function PersonaModal({
         <div className="overflow-y-auto max-h-[400px]">
           <div className="grid grid-cols-2 gap-3">
             {isLoading ? (
-              <div className="col-span-2 p-4 text-center text-neutral-dark">Loading personas...</div>
+              <div className="col-span-2 p-4 text-center text-neutral-dark">Loading historical figures...</div>
             ) : filteredPersonas.length === 0 ? (
-              <div className="col-span-2 p-4 text-center text-neutral-dark">No personas found</div>
+              <div className="col-span-2 p-4 text-center text-neutral-dark">No historical figures found</div>
             ) : (
               filteredPersonas.map((persona: Persona) => (
                 <div
@@ -110,7 +110,7 @@ export function PersonaModal({
             disabled={!selectedPersonaId || selectedPersonaId === currentPersonaId}
             className="w-full bg-primary hover:bg-primary-dark text-white rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 transition-colors duration-200"
           >
-            Switch Persona
+            Switch Figure
           </Button>
         </DialogFooter>
       </DialogContent>

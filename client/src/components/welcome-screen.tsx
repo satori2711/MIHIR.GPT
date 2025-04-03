@@ -98,9 +98,12 @@ export function WelcomeScreen({ onPersonaSelect }: WelcomeScreenProps) {
   return (
     <div className="flex flex-col items-center justify-center h-full bg-background">
       <div className="p-8 bg-card rounded-lg shadow-lg max-w-md w-full">
-        <h1 className="text-3xl font-bold text-center mb-6 text-primary">
-          Whom would you like to chat with today?
+        <h1 className="text-3xl font-bold text-center mb-2 text-primary">
+          MihirGPT
         </h1>
+        <p className="text-xl text-center mb-6 text-foreground">
+          Whom would you like to chat with today?
+        </p>
         
         <div className="relative">
           <input
