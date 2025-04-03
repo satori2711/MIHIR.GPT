@@ -13,9 +13,10 @@ interface ChatProps {
   onPersonaSelect: (persona: Persona) => void;
   onToggleSidebar: () => void;
   isMobile: boolean;
+  onReset?: () => void;
 }
 
-export function Chat({ activePersona, onPersonaSelect, onToggleSidebar, isMobile }: ChatProps) {
+export function Chat({ activePersona, onPersonaSelect, onToggleSidebar, isMobile, onReset }: ChatProps) {
   const [messageInput, setMessageInput] = useState('');
   const [sessionId, setSessionId] = useState<string>('');
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -58,7 +59,7 @@ export function Chat({ activePersona, onPersonaSelect, onToggleSidebar, isMobile
     data: messages = [], 
     isLoading: isLoadingMessages,
     refetch: refetchMessages
-  } = useQuery({
+  } = useQuery<Message[]>({
     queryKey: [`/api/sessions/${sessionId}/messages`],
     enabled: !!sessionId
   });
@@ -214,7 +215,7 @@ export function Chat({ activePersona, onPersonaSelect, onToggleSidebar, isMobile
     if (
       activePersona && 
       sessionId && 
-      messages.length === 0 && 
+      messages && messages.length === 0 && 
       !isLoadingMessages
     ) {
       const welcomeMessage: Message = {
@@ -232,7 +233,7 @@ export function Chat({ activePersona, onPersonaSelect, onToggleSidebar, isMobile
         [welcomeMessage]
       );
     }
-  }, [activePersona, sessionId, messages.length, isLoadingMessages, queryClient]);
+  }, [activePersona, sessionId, messages, isLoadingMessages, queryClient]);
 
   return (
     <div className="flex-grow flex flex-col bg-neutral-lightest">
@@ -276,6 +277,13 @@ export function Chat({ activePersona, onPersonaSelect, onToggleSidebar, isMobile
         <div className="flex">
           <button 
             className="text-neutral-dark hover:text-primary p-2 focus:outline-none" 
+            title="Change personality"
+            onClick={onReset}
+          >
+            <RefreshCw className="h-5 w-5" />
+          </button>
+          <button 
+            className="text-neutral-dark hover:text-primary p-2 focus:outline-none" 
             title="Chat settings"
             disabled={!activePersona}
           >
@@ -285,7 +293,7 @@ export function Chat({ activePersona, onPersonaSelect, onToggleSidebar, isMobile
             className="text-neutral-dark hover:text-error p-2 focus:outline-none" 
             title="Clear chat"
             onClick={handleClearChat}
-            disabled={!activePersona || messages.length === 0}
+            disabled={!activePersona || !messages || !Array.isArray(messages) || messages.length === 0}
           >
             <Delete className="h-5 w-5" />
           </button>
@@ -306,13 +314,13 @@ export function Chat({ activePersona, onPersonaSelect, onToggleSidebar, isMobile
               Select a historical figure from the sidebar to start chatting
             </div>
           </div>
-        ) : messages.length === 0 ? (
+        ) : messages && Array.isArray(messages) && messages.length === 0 ? (
           <div className="flex justify-center mb-6">
             <div className="bg-neutral-light rounded-lg px-4 py-2 text-sm text-neutral-darkest max-w-md text-center">
               You are now chatting with <span className="font-semibold">{activePersona.name}</span>. Ask anything or try switching personas.
             </div>
           </div>
-        ) : (
+        ) : messages && Array.isArray(messages) && messages.length > 0 ? (
           messages.map((message: Message) => (
             <MessageComponent 
               key={message.id} 
@@ -321,6 +329,12 @@ export function Chat({ activePersona, onPersonaSelect, onToggleSidebar, isMobile
               personaName={activePersona?.name}
             />
           ))
+        ) : (
+          <div className="flex justify-center">
+            <div className="bg-neutral-light rounded-lg px-4 py-2 text-sm text-neutral-darkest max-w-md text-center">
+              Loading conversation...
+            </div>
+          </div>
         )}
         
         {/* Show typing indicator when AI is generating a response */}

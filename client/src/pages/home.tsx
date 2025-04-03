@@ -2,41 +2,39 @@ import { useState, useEffect } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { Sidebar } from '@/components/sidebar';
 import { Chat } from '@/components/chat';
+import { WelcomeScreen } from '@/components/welcome-screen';
 import { Persona } from '@/lib/types';
 import { useIsMobile } from '@/hooks/use-mobile';
 
 export default function Home() {
   const [activePersona, setActivePersona] = useState<Persona | null>(null);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const [showWelcomeScreen, setShowWelcomeScreen] = useState(true);
   const isMobile = useIsMobile();
 
   // Fetch all personas on initial load
-  const { data: personas = [] } = useQuery({
+  const { data: personas = [] } = useQuery<Persona[]>({
     queryKey: ['/api/personas'],
   });
 
-  // Set default persona if none selected and personas are loaded
+  // Check if user has used the app before
   useEffect(() => {
-    if (!activePersona && personas.length > 0) {
-      // Try to restore from localStorage
-      const storedPersonaId = localStorage.getItem('activePersonaId');
-      if (storedPersonaId) {
-        const persona = personas.find((p: Persona) => p.id === parseInt(storedPersonaId));
-        if (persona) {
-          setActivePersona(persona);
-          return;
-        }
+    const storedPersonaId = localStorage.getItem('activePersonaId');
+    if (storedPersonaId && personas && personas.length > 0) {
+      const persona = personas.find((p: Persona) => p.id === parseInt(storedPersonaId));
+      if (persona) {
+        setActivePersona(persona);
+        setShowWelcomeScreen(false); // Skip welcome screen for returning users
       }
-      
-      // Default to first persona if none stored
-      setActivePersona(personas[0]);
     }
-  }, [personas, activePersona]);
+  }, [personas]);
 
   // Handle persona selection
   const handlePersonaSelect = (persona: Persona) => {
     setActivePersona(persona);
     localStorage.setItem('activePersonaId', persona.id.toString());
+    setShowWelcomeScreen(false); // Hide welcome screen after selection
+    
     if (isMobile) {
       setIsSidebarOpen(false);
     }
@@ -46,6 +44,18 @@ export default function Home() {
   const handleToggleSidebar = () => {
     setIsSidebarOpen(!isSidebarOpen);
   };
+
+  // Reset to welcome screen
+  const handleReset = () => {
+    setShowWelcomeScreen(true);
+    setActivePersona(null);
+    localStorage.removeItem('activePersonaId');
+  };
+
+  // Show welcome screen if no persona is selected
+  if (showWelcomeScreen) {
+    return <WelcomeScreen onPersonaSelect={handlePersonaSelect} />;
+  }
 
   return (
     <div className="flex h-screen flex-col md:flex-row overflow-hidden">
@@ -61,6 +71,7 @@ export default function Home() {
         onPersonaSelect={handlePersonaSelect}
         onToggleSidebar={handleToggleSidebar}
         isMobile={isMobile}
+        onReset={handleReset}
       />
     </div>
   );
