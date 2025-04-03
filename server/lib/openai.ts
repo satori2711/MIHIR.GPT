@@ -52,8 +52,15 @@ Avoid modern slang or references that wouldn't be appropriate for your time peri
     return {
       content: response.choices[0].message.content || "I'm afraid I couldn't compose a proper response at this moment."
     };
-  } catch (error) {
+  } catch (error: any) {
     console.error("Error generating persona response:", error);
-    throw new Error("Failed to generate response from OpenAI API");
+    
+    // Check if it's a quota exceeded error
+    if (error?.error?.code === 'insufficient_quota' || 
+        (error?.message && typeof error.message === 'string' && error.message.includes('quota'))) {
+      throw new Error("API_QUOTA_EXCEEDED");
+    } else {
+      throw new Error("Failed to generate response from OpenAI API");
+    }
   }
 }

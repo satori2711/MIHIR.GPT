@@ -74,13 +74,25 @@ export function Chat({ activePersona, onPersonaSelect, onToggleSidebar, isMobile
       queryClient.invalidateQueries({ queryKey: [`/api/sessions/${sessionId}/messages`] });
       setIsTyping(false);
     },
-    onError: (error) => {
+    onError: (error: any) => {
       console.error('Failed to send message:', error);
-      toast({
-        title: "Error",
-        description: "Failed to send message. Please try again.",
-        variant: "destructive"
-      });
+      
+      // Check for quota exceeded error
+      if (error?.response?.status === 402 || 
+          (error?.response?.data?.errorType === 'API_QUOTA_EXCEEDED')) {
+        toast({
+          title: "API Quota Exceeded",
+          description: "The OpenAI API key has reached its usage limit. Please try again later or contact support for assistance.",
+          variant: "destructive"
+        });
+      } else {
+        toast({
+          title: "Error",
+          description: "Failed to send message. Please try again.",
+          variant: "destructive"
+        });
+      }
+      
       setIsTyping(false);
     }
   });

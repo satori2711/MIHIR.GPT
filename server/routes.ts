@@ -267,10 +267,18 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
       
       // Handle OpenAI API errors
-      if (error.message === "Failed to generate response from OpenAI API") {
-        return res.status(503).json({ 
-          message: "Unable to generate response from AI service. Please try again later."
-        });
+      if (error instanceof Error) {
+        if (error.message === "API_QUOTA_EXCEEDED") {
+          return res.status(402).json({ 
+            message: "API quota exceeded. The OpenAI API key has reached its usage limit.",
+            errorType: "API_QUOTA_EXCEEDED"
+          });
+        } else if (error.message === "Failed to generate response from OpenAI API") {
+          return res.status(503).json({ 
+            message: "Unable to generate response from AI service. Please try again later.",
+            errorType: "API_ERROR"
+          });
+        }
       }
       
       res.status(500).json({ message: "Failed to process message" });
