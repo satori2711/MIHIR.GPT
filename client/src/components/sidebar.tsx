@@ -25,7 +25,7 @@ export function Sidebar({
   const queryClient = useQueryClient();
 
   // Get all personas from API
-  const { data: personas = [], isLoading } = useQuery({
+  const { data: personas = [], isLoading } = useQuery<Persona[]>({
     queryKey: ['/api/personas'],
     staleTime: 60000 // 1 minute
   });
@@ -42,7 +42,7 @@ export function Sidebar({
   }, [searchQuery, queryClient]);
 
   // Filter personas based on search and category
-  const filteredPersonas = personas.filter((persona: Persona) => {
+  const filteredPersonas = personas.filter((persona) => {
     const matchesSearch = searchQuery === '' || 
       persona.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
       persona.description.toLowerCase().includes(searchQuery.toLowerCase());

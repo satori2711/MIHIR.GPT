@@ -33,12 +33,17 @@ export function WelcomeScreen({ onPersonaSelect }: WelcomeScreenProps) {
       
       // Auto-select if there's an exact match or if there's only one suggestion and Enter was pressed
       if (filtered.length === 1 && searchQuery.trim().length > 2 && searchQuery.endsWith('\n')) {
-        // Remove the newline character
-        setSearchQuery(searchQuery.replace('\n', ''));
-        handlePersonaSelect(filtered[0]);
+        // Create a local copy to avoid direct state modifications in useEffect
+        const matchedPersona = filtered[0];
+        const cleanedQuery = searchQuery.replace('\n', '');
+        // Use setTimeout to break the synchronous update cycle
+        setTimeout(() => {
+          setSearchQuery(cleanedQuery);
+          handlePersonaSelect(matchedPersona);
+        }, 0);
       }
     }
-  }, [searchQuery, personas]);
+  }, [searchQuery, personas, onPersonaSelect]);
 
   // Check for exact name match when user presses Enter
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
