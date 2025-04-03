@@ -109,7 +109,7 @@ export function WelcomeScreen({ onPersonaSelect }: WelcomeScreenProps) {
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             onKeyDown={handleKeyDown}
-            placeholder="Type a historical figure's name..."
+            placeholder="Type any historical figure's name..."
             className="w-full p-4 border border-input rounded-lg bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
           />
           

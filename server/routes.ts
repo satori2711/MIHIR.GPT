@@ -157,7 +157,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       await storage.createMessage({
         sessionId,
         role: "system",
-        content: `You are now chatting with ${persona.name}.`,
+        content: `You are now chatting with ${persona.name}. The AI will adapt to this new personality while maintaining conversation context.`,
         personaId: parsedPersonaId
       });
       
@@ -230,7 +230,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       // Format messages for OpenAI
       const conversationHistory = allMessages
-        .filter(msg => msg.role !== "system") // Exclude system messages
+        // Include system messages that indicate persona switches for better context
         .map(msg => ({
           role: msg.role,
           content: msg.content
