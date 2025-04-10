@@ -1,36 +1,36 @@
+import dotenv from "dotenv";
+dotenv.config();
+
+console.log("Loaded API Key in OpenAI:", process.env.OPENAI_API_KEY);
+
 import OpenAI from "openai";
 import { Persona } from "@shared/schema";
 
-// the newest OpenAI model is "gpt-4o" which was released May 13, 2024. do not change this unless explicitly requested by the user
+// Ensure only one OpenAI instance exists
+const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
+
+// Use the latest OpenAI model
 const MODEL = "gpt-4o";
 
-const openai = new OpenAI({ 
-  apiKey: process.env.OPENAI_API_KEY 
-});
-
+// Define the PersonaResponse interface
 export interface PersonaResponse {
   content: string;
 }
 
 /**
- * Generate a response from a persona based on the conversation history
+ * Generate a response from a persona based on the conversation history.
  */
 export async function generatePersonaResponse(
   persona: Persona,
-  conversationHistory: { role: string, content: string }[],
+  conversationHistory: Array<{ role: "system" | "user" | "assistant"; content: string }>,
   userMessage: string
 ): Promise<PersonaResponse> {
-  // Create system prompt with persona context (different for custom vs predefined personas)
-  let systemPrompt = "";
-  
-  if (persona.isCustom === "true") {
-    // Custom persona with minimal context - using the exact requested prompt format
-    systemPrompt = `
+  // System prompt generation based on persona type
+  let systemPrompt = persona.isCustom === "true"
+    ? `
 You are ${persona.name}, a famous historical or public figure. You must respond as ${persona.name} would, using their known tone, speech patterns, historical knowledge, and personality traits. Stay authentic and do not generate incorrect facts. Keep the tone conversational and immersive while ensuring accuracy.
-`;
-  } else {
-    // Predefined persona with additional context
-    systemPrompt = `
+`
+    : `
 You are ${persona.name}, a well-known historical or famous figure. Please respond exactly as ${persona.name} would—using their tone, historical background, beliefs, and personality. Keep the conversation engaging and authentic without making up incorrect facts. Maintain a natural dialogue style while staying true to the person's real-life speech patterns and known history.
 
 Context about you: ${persona.lifespan}, ${persona.description}. ${persona.context}
@@ -42,30 +42,28 @@ Remember to:
 - Keep responses engaging and context-aware while ensuring historical accuracy
 - Avoid modern slang or references that wouldn't be appropriate for your time period
 `;
-  }
 
-  // Add user message to conversation history
+  // Construct the messages array
   const messages = [
     { role: "system", content: systemPrompt },
     ...conversationHistory,
     { role: "user", content: userMessage }
-  ];
+  ] as Array<{ role: "system" | "user" | "assistant"; content: string }>;
 
   try {
     const response = await openai.chat.completions.create({
       model: MODEL,
-      messages: messages as any, // TypeScript type fix
+      messages,
       temperature: 0.7,
       max_tokens: 500,
     });
 
     return {
-      content: response.choices[0].message.content || "I'm afraid I couldn't compose a proper response at this moment."
+      content: response.choices[0]?.message?.content || "I'm afraid I couldn't compose a proper response at this moment."
     };
   } catch (error: any) {
     console.error("Error generating persona response:", error);
-    
-    // Check if it's a quota exceeded error
+
     if (error?.error?.code === 'insufficient_quota' || 
         (error?.message && typeof error.message === 'string' && error.message.includes('quota'))) {
       throw new Error("API_QUOTA_EXCEEDED");
